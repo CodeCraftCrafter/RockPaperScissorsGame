@@ -11,7 +11,6 @@ class RockPaperScissorsGame
         WinsInGames
     }
 
-    // Словарь для хранения статистики
     static Dictionary<GameStats, int> stats = new Dictionary<GameStats, int>
     {
         { GameStats.GamesPlayed, 0 },
@@ -22,8 +21,7 @@ class RockPaperScissorsGame
 
     static void Main(string[] args)
     {
-              Console.WriteLine("Добро пожаловать в игру 'Камень, ножницы, бумага'!");
-
+        Console.WriteLine("Добро пожаловать в игру 'Камень, ножницы, бумага'!");
         Console.WriteLine("+-----------------------------------------------+");
         Console.WriteLine("|                   Правила игры                |");
         Console.WriteLine("+-----------------------------------------------+");
@@ -41,12 +39,20 @@ class RockPaperScissorsGame
         }
         while (!int.TryParse(Console.ReadLine(), out age) || age < 12);
 
-        // Вывод рейтинговой таблицы
+        for (int i = 0; i < 3; i++)
+        {
+            int playerChoice = PlayerTurn();
+            int opponentChoice = ProgressOfDefeat();
+            RoundResult(playerChoice, opponentChoice);
+        }
+
+        // Завершение трех раундов и обновление статистики
+        stats[GameStats.GamesPlayed]++;
         DisplayStats();
 
-        int playerChoice = PlayerTurn();
-        int opponentChoice = ProgressOfDefeat();
-        RoundResult(playerChoice, opponentChoice);
+        // Сброс статистики побед и поражений в раундах для новой игры
+        stats[GameStats.WinsInRound] = 0;
+        stats[GameStats.LossesInRound] = 0;
     }
 
     static void DisplayStats()
@@ -71,9 +77,9 @@ class RockPaperScissorsGame
         {
             Console.WriteLine("Выберите ваш ход: 1 - Камень, 2 - Ножницы, 3 - Бумага");
             Console.Write("Ваш выбор: ");
-        } while (!int.TryParse(Console.ReadLine(), out playerChoice) || playerChoice < 1 || playerChoice > 3);
+        }
+        while (!int.TryParse(Console.ReadLine(), out playerChoice) || playerChoice < 1 || playerChoice > 3);
 
-        // Выводим на экран выбор игрока
         VisualizeChoice(playerChoice, "Ваш выбор");
         return playerChoice;
     }
@@ -81,18 +87,17 @@ class RockPaperScissorsGame
     static int ProgressOfDefeat()
     {
         Random random = new Random();
-        int opponentChoice = random.Next(1, 4); // Генерируем выбор от 1 до 3
-
-        // Визуализация выбора противника
+        int opponentChoice = random.Next(1, 4);
         VisualizeChoice(opponentChoice, "Выбор противника, Билли");
         return opponentChoice;
     }
+
     static void VisualizeChoice(int choice, string owner)
     {
         Console.WriteLine($"{owner}:");
         switch (choice)
         {
-            case 1: // Камень
+            case 1:
                 Console.WriteLine("    _______");
                 Console.WriteLine("---'   ____)");
                 Console.WriteLine("      (_____)");
@@ -100,7 +105,7 @@ class RockPaperScissorsGame
                 Console.WriteLine("      (____)");
                 Console.WriteLine("---.__(___)");
                 break;
-            case 2: // Ножницы
+            case 2:
                 Console.WriteLine("    _______");
                 Console.WriteLine("---'   ____)____");
                 Console.WriteLine("          ______)");
@@ -108,7 +113,7 @@ class RockPaperScissorsGame
                 Console.WriteLine("      (____)");
                 Console.WriteLine("---.__(___)");
                 break;
-            case 3: // Бумага
+            case 3:
                 Console.WriteLine("    _______");
                 Console.WriteLine("---'   ____)____");
                 Console.WriteLine("          ______)");
@@ -121,7 +126,6 @@ class RockPaperScissorsGame
 
     static void RoundResult(int playerChoice, int opponentChoice)
     {
-        // Правила определения победителя
         if (playerChoice == opponentChoice)
         {
             Console.WriteLine("Ничья!");
@@ -139,11 +143,5 @@ class RockPaperScissorsGame
             Console.WriteLine("Вы проиграли :(");
             stats[GameStats.LossesInRound]++;
         }
-
-        // Обновление количества сыгранных игр
-        stats[GameStats.GamesPlayed]++;
-
-        // Повторный вывод обновленной рейтинговой таблицы
-        DisplayStats();
     }
 }
