@@ -1,13 +1,29 @@
 ﻿using System;
+using System.Collections.Generic;
 
 class RockPaperScissorsGame
 {
+    enum GameStats
+    {
+        GamesPlayed,
+        WinsInRound,
+        LossesInRound,
+        WinsInGames
+    }
+
+    // Словарь для хранения статистики
+    static Dictionary<GameStats, int> stats = new Dictionary<GameStats, int>
+    {
+        { GameStats.GamesPlayed, 0 },
+        { GameStats.WinsInRound, 0 },
+        { GameStats.LossesInRound, 0 },
+        { GameStats.WinsInGames, 0 }
+    };
+
     static void Main(string[] args)
     {
-        // Приветствие
-        Console.WriteLine("Добро пожаловать в игру 'Камень, ножницы, бумага'!");
+              Console.WriteLine("Добро пожаловать в игру 'Камень, ножницы, бумага'!");
 
-        // Правила игры в виде таблицы
         Console.WriteLine("+-----------------------------------------------+");
         Console.WriteLine("|                   Правила игры                |");
         Console.WriteLine("+-----------------------------------------------+");
@@ -16,34 +32,36 @@ class RockPaperScissorsGame
         Console.WriteLine("| Бумага побеждает камень.                      |");
         Console.WriteLine("+-----------------------------------------------+");
 
-        // Запрос никнейма и возраста
         Console.Write("\nПожалуйста, введите ваш никнейм: ");
         string nickname = Console.ReadLine();
         int age;
         do
         {
             Console.Write("Введите ваш возраст (только 12+): ");
-        } while (!int.TryParse(Console.ReadLine(), out age) || age < 12);
-
-        // Инициализация переменных для рейтинговой таблицы
-        int winsInRound = 0;
-        int lossesInRound = 0;
-        int gamesPlayed = 0;
-        int winsInGames = 0;
+        }
+        while (!int.TryParse(Console.ReadLine(), out age) || age < 12);
 
         // Вывод рейтинговой таблицы
+        DisplayStats();
+
+        int playerChoice = PlayerTurn();
+        int opponentChoice = ProgressOfDefeat();
+        RoundResult(playerChoice, opponentChoice);
+    }
+
+    static void DisplayStats()
+    {
         Console.WriteLine("\n+---------------------------------------------------+");
         Console.WriteLine("|                  Рейтинговая таблица              |");
         Console.WriteLine("+------------+------------+------------+------------+");
         Console.WriteLine("| Игр сыграно| Побед в    | Проигрышей | Побед в    |");
         Console.WriteLine("|            | раундах    | в раундах  | играх      |");
         Console.WriteLine("+------------+------------+------------+------------+");
-        Console.WriteLine($"| {gamesPlayed,10} | {winsInRound,10} | {lossesInRound,10} | {winsInGames,8}   |");
+        Console.WriteLine($"| {stats[GameStats.GamesPlayed],10} | {stats[GameStats.WinsInRound],10} | {stats[GameStats.LossesInRound],10} | {stats[GameStats.WinsInGames],8}   |");
         Console.WriteLine("+------------+------------+------------+------------+");
-
-        playerTurn();
     }
-    static void playerTurn()
+
+    static int PlayerTurn()
     {
         Console.WriteLine("\nГотовы ли вы начать? Нажмите Enter, чтобы продолжить...");
         Console.ReadLine();
@@ -56,74 +74,22 @@ class RockPaperScissorsGame
         } while (!int.TryParse(Console.ReadLine(), out playerChoice) || playerChoice < 1 || playerChoice > 3);
 
         // Выводим на экран выбор игрока
-        switch (playerChoice)
-        {
-            case 1: // Камень
-                Console.WriteLine("    _______");
-                Console.WriteLine("---'   ____)");
-                Console.WriteLine("      (_____)");
-                Console.WriteLine("      (_____)");
-                Console.WriteLine("      (____)");
-                Console.WriteLine("---.__(___)");
-                break;
-            case 2: // Ножницы
-                Console.WriteLine("    _______");
-                Console.WriteLine("---'   ____)____");
-                Console.WriteLine("          ______)");
-                Console.WriteLine("       __________)");
-                Console.WriteLine("      (____)");
-                Console.WriteLine("---.__(___)");
-                break;
-            case 3: // Бумага
-                Console.WriteLine("    _______");
-                Console.WriteLine("---'   ____)____");
-                Console.WriteLine("          ______)");
-                Console.WriteLine("          _______)");
-                Console.WriteLine("         _______)");
-                Console.WriteLine("---.__________)");
-                break;
-        }
-        progressOfDefeat();
+        VisualizeChoice(playerChoice, "Ваш выбор");
+        return playerChoice;
     }
-    static void progressOfDefeat()
+
+    static int ProgressOfDefeat()
     {
-        int[] randomValues = new int[3];
         Random random = new Random();
-        int sum = 0;
-
-        // Заполнение массива случайными числами и расчет суммы
-        for (int i = 0; i < randomValues.Length; i++)
-        {
-            randomValues[i] = random.Next(1, 91); // Генерация чисел от 1 до 90
-            sum += randomValues[i];
-        }
-
-        // Среднее значение для определения выбора противника
-        int average = sum / randomValues.Length;
-
-        string opponentChoice = "";
-        int choice;
-
-        if (average >= 1 && average <= 30)
-        {
-            opponentChoice = "Камень";
-            choice = 1;
-        }
-        else if (average > 30 && average <= 60)
-        {
-            opponentChoice = "Ножницы";
-            choice = 2;
-        }
-        else // if (average > 60 && average <= 90)
-        {
-            opponentChoice = "Бумага";
-            choice = 3;
-        }
-
-        // Вывод выбора противника
-        Console.WriteLine($"У Вашего противника, Билли: {opponentChoice}");
+        int opponentChoice = random.Next(1, 4); // Генерируем выбор от 1 до 3
 
         // Визуализация выбора противника
+        VisualizeChoice(opponentChoice, "Выбор противника, Билли");
+        return opponentChoice;
+    }
+    static void VisualizeChoice(int choice, string owner)
+    {
+        Console.WriteLine($"{owner}:");
         switch (choice)
         {
             case 1: // Камень
@@ -151,5 +117,33 @@ class RockPaperScissorsGame
                 Console.WriteLine("---.__________)");
                 break;
         }
+    }
+
+    static void RoundResult(int playerChoice, int opponentChoice)
+    {
+        // Правила определения победителя
+        if (playerChoice == opponentChoice)
+        {
+            Console.WriteLine("Ничья!");
+        }
+        else if ((playerChoice == 1 && opponentChoice == 2) ||
+                 (playerChoice == 2 && opponentChoice == 3) ||
+                 (playerChoice == 3 && opponentChoice == 1))
+        {
+            Console.WriteLine("Вы победили!");
+            stats[GameStats.WinsInRound]++;
+            stats[GameStats.WinsInGames]++;
+        }
+        else
+        {
+            Console.WriteLine("Вы проиграли :(");
+            stats[GameStats.LossesInRound]++;
+        }
+
+        // Обновление количества сыгранных игр
+        stats[GameStats.GamesPlayed]++;
+
+        // Повторный вывод обновленной рейтинговой таблицы
+        DisplayStats();
     }
 }
