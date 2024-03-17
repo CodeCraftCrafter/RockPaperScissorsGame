@@ -39,14 +39,22 @@ class RockPaperScissorsGame
         }
         while (!int.TryParse(Console.ReadLine(), out age) || age < 12);
 
+        int roundWins = 0; // Счетчик побед в раундах
+
         for (int i = 0; i < 3; i++)
         {
             int playerChoice = PlayerTurn();
             int opponentChoice = ProgressOfDefeat();
-            RoundResult(playerChoice, opponentChoice);
+            roundWins += RoundResult(playerChoice, opponentChoice); // Суммируем результаты раундов
         }
 
-        // Завершение трех раундов и обновление статистики
+        // Проверка количества побед в раундах и обновление статистики
+        if (roundWins >= 2)
+        {
+            stats[GameStats.WinsInGames]++;
+            Console.WriteLine($"Поздравляем! Вы выиграли {roundWins} из 3 раундов.");
+        }
+
         stats[GameStats.GamesPlayed]++;
         DisplayStats();
 
@@ -124,24 +132,26 @@ class RockPaperScissorsGame
         }
     }
 
-    static void RoundResult(int playerChoice, int opponentChoice)
+    static int RoundResult(int playerChoice, int opponentChoice)
     {
         if (playerChoice == opponentChoice)
         {
             Console.WriteLine("Ничья!");
+            return 0; // Не считается победой
         }
         else if ((playerChoice == 1 && opponentChoice == 2) ||
                  (playerChoice == 2 && opponentChoice == 3) ||
                  (playerChoice == 3 && opponentChoice == 1))
         {
-            Console.WriteLine("Вы победили!");
+            Console.WriteLine("Вы победили раунд!");
             stats[GameStats.WinsInRound]++;
-            stats[GameStats.WinsInGames]++;
+            return 1; // Считается победой
         }
         else
         {
-            Console.WriteLine("Вы проиграли :(");
+            Console.WriteLine("Вы проиграли раунд :(");
             stats[GameStats.LossesInRound]++;
+            return 0; // Не считается победой
         }
     }
 }
