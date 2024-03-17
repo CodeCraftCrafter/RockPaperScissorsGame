@@ -19,6 +19,10 @@ class RockPaperScissorsGame
         { GameStats.WinsInGames, 0 }
     };
 
+    // Новые поля для хранения имени и возраста
+    static string playerName;
+    static int playerAge;
+
     static void Main(string[] args)
     {
         Console.WriteLine("Добро пожаловать в игру 'Камень, ножницы, бумага'!");
@@ -31,14 +35,24 @@ class RockPaperScissorsGame
         Console.WriteLine("+-----------------------------------------------+");
 
         Console.Write("\nПожалуйста, введите ваш никнейм: ");
-        string nickname = Console.ReadLine();
-        int age;
+        playerName = Console.ReadLine();
+
         do
         {
             Console.Write("Введите ваш возраст (только 12+): ");
         }
-        while (!int.TryParse(Console.ReadLine(), out age) || age < 12);
+        while (!int.TryParse(Console.ReadLine(), out playerAge) || playerAge < 12);
 
+        bool continuePlaying = true;
+        while (continuePlaying)
+        {
+            PlayGame();
+            continuePlaying = AskToContinue();
+        }
+    }
+
+    static void PlayGame()
+    {
         int roundWins = 0; // Счетчик побед в раундах
 
         int roundsToPlay = 3;
@@ -63,15 +77,33 @@ class RockPaperScissorsGame
 
         stats[GameStats.GamesPlayed]++;
         DisplayStats();
+    }
 
-        stats[GameStats.WinsInRound] = 0;
-        stats[GameStats.LossesInRound] = 0;
+    static bool AskToContinue()
+    {
+        Console.WriteLine("Хотите продолжить поединок? (да/нет)");
+        string answer = Console.ReadLine().Trim().ToLower();
+        if (answer == "да")
+        {
+            Console.Clear();
+            DisplayStats(); // Выводим статистику снова после очистки экрана
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     static void DisplayStats()
     {
-        Console.WriteLine("\n+---------------------------------------------------+");
-        Console.WriteLine("|                  Рейтинговая таблица              |");
+        Console.WriteLine("\n+-------------------------------------------------+");
+        Console.WriteLine("|                  Игрок и его данные             |");
+        Console.WriteLine("+------------+------------+                       |");
+        Console.WriteLine($"| Имя        | {playerName,10}|                  |");
+        Console.WriteLine($"| Возраст    | {playerAge,10} |                  |");
+        Console.WriteLine("+------------+------------+                       |");
+        Console.WriteLine("|                  Рейтинговая таблица            |");
         Console.WriteLine("+------------+------------+------------+------------+");
         Console.WriteLine("| Игр сыграно| Побед в    | Проигрышей | Побед в    |");
         Console.WriteLine("|            | раундах    | в раундах  | играх      |");
@@ -82,9 +114,7 @@ class RockPaperScissorsGame
 
     static int PlayerTurn()
     {
-        Console.WriteLine("\nГотовы ли вы начать? Нажмите Enter, чтобы продолжить...");
-        Console.ReadLine();
-
+ 
         int playerChoice;
         do
         {
