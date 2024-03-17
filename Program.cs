@@ -41,24 +41,29 @@ class RockPaperScissorsGame
 
         int roundWins = 0; // Счетчик побед в раундах
 
-        for (int i = 0; i < 3; i++)
+        int roundsToPlay = 3;
+        while (roundsToPlay > 0)
         {
             int playerChoice = PlayerTurn();
             int opponentChoice = ProgressOfDefeat();
-            roundWins += RoundResult(playerChoice, opponentChoice); // Суммируем результаты раундов
+            int result = RoundResult(playerChoice, opponentChoice);
+
+            if (result != 0) // Если не ничья
+            {
+                roundsToPlay--;
+                if (result == 1) roundWins++; // Подсчет побед
+            }
         }
 
-        // Проверка количества побед в раундах и обновление статистики
         if (roundWins >= 2)
         {
             stats[GameStats.WinsInGames]++;
-            Console.WriteLine($"Поздравляем! Вы выиграли {roundWins} из 3 раундов.");
+            Console.WriteLine($"Вы выиграли {roundWins} раунд(ов) из 3.");
         }
 
         stats[GameStats.GamesPlayed]++;
         DisplayStats();
 
-        // Сброс статистики побед и поражений в раундах для новой игры
         stats[GameStats.WinsInRound] = 0;
         stats[GameStats.LossesInRound] = 0;
     }
@@ -136,8 +141,8 @@ class RockPaperScissorsGame
     {
         if (playerChoice == opponentChoice)
         {
-            Console.WriteLine("Ничья!");
-            return 0; // Не считается победой
+            Console.WriteLine("Ничья! Играйте еще раз.");
+            return 0; // Ничья
         }
         else if ((playerChoice == 1 && opponentChoice == 2) ||
                  (playerChoice == 2 && opponentChoice == 3) ||
@@ -145,13 +150,13 @@ class RockPaperScissorsGame
         {
             Console.WriteLine("Вы победили раунд!");
             stats[GameStats.WinsInRound]++;
-            return 1; // Считается победой
+            return 1; // Победа
         }
         else
         {
-            Console.WriteLine("Вы проиграли раунд :(");
+            Console.WriteLine("Вы проиграли раунд.");
             stats[GameStats.LossesInRound]++;
-            return 0; // Не считается победой
+            return -1; // Проигрыш
         }
     }
 }
